@@ -53,7 +53,7 @@ Q_IMPORT_PLUGIN(QSvgPlugin);
 
 Generated  `Q_IMPORT_PLUGIN` are dependent on which Qt module you are using. You should register module with `qt5_use_modules` macro.
 
-The second macro `qt_generate_qml_plugin_import` will work the same way but will import qml plugins and generate `YourApp_plugin_import.cpp` that will look like this:
+The second macro `qt_generate_qml_plugin_import` will work the same way but will import qml plugins and generate `YourApp_qml_plugin_import.cpp` that will look like this:
 
 ```c++
 // File Generated via CMake script during build time.
