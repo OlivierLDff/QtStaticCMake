@@ -142,7 +142,7 @@ MACRO(qt_generate_qml_plugin_import TARGET)
     FILE(WRITE ${QT_STATIC_QML_PLUGIN_SRC_FILE} ${QT_STATIC_FILE_HEADER})
 
     FOREACH(PLUGIN ${QT_STATIC_QML_DEPENDENCIES_PLUGINS})
-        FILE(APPEND ${QT_STATIC_QML_PLUGIN_SRC_FILE} "Q_IMPORT_PLUGIN(${PLUGIN})\n")
+        FILE(APPEND ${QT_STATIC_QML_PLUGIN_SRC_FILE} "Q_IMPORT_PLUGIN(${PLUGIN});\n")
     ENDFOREACH()
 
     IF(QT_STATIC_VERBOSE)
@@ -242,7 +242,7 @@ MACRO(qt_generate_plugin_import TARGET)
                         # Only Write/Keep track if the plugin isn't already present
                         IF(_PLUGIN_INDEX EQUAL -1)
                             LIST(APPEND QT_STATIC_DEPENDENCIES_PLUGINS ${PLUGIN_NAME})
-                            FILE(APPEND ${QT_STATIC_PLUGIN_SRC_FILE} "Q_IMPORT_PLUGIN(${PLUGIN_NAME})\n")
+                            FILE(APPEND ${QT_STATIC_PLUGIN_SRC_FILE} "Q_IMPORT_PLUGIN(${PLUGIN_NAME});\n")
                         ENDIF(_PLUGIN_INDEX EQUAL -1)
                     ENDIF(PLUGIN_NAME)
                 ENDFOREACH()

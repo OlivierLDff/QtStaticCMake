@@ -15,40 +15,40 @@ When linking with static Qt, dynamic plugin are not load on demand and must be e
 #include <QtPlugin>
 
 // Qt5Gui
-Q_IMPORT_PLUGIN(QGifPlugin)
-Q_IMPORT_PLUGIN(QICNSPlugin)
-Q_IMPORT_PLUGIN(QICOPlugin)
-Q_IMPORT_PLUGIN(QIOSIntegrationPlugin)
-Q_IMPORT_PLUGIN(QJpegPlugin)
-Q_IMPORT_PLUGIN(QMacHeifPlugin)
-Q_IMPORT_PLUGIN(QMacJp2Plugin)
-Q_IMPORT_PLUGIN(QMinimalIntegrationPlugin)
-Q_IMPORT_PLUGIN(QOffscreenIntegrationPlugin)
-Q_IMPORT_PLUGIN(QTgaPlugin)
-Q_IMPORT_PLUGIN(QTiffPlugin)
-Q_IMPORT_PLUGIN(QTuioTouchPlugin)
-Q_IMPORT_PLUGIN(QWbmpPlugin)
-Q_IMPORT_PLUGIN(QWebpPlugin)
+Q_IMPORT_PLUGIN(QGifPlugin);
+Q_IMPORT_PLUGIN(QICNSPlugin);
+Q_IMPORT_PLUGIN(QICOPlugin);
+Q_IMPORT_PLUGIN(QIOSIntegrationPlugin);
+Q_IMPORT_PLUGIN(QJpegPlugin);
+Q_IMPORT_PLUGIN(QMacHeifPlugin);
+Q_IMPORT_PLUGIN(QMacJp2Plugin);
+Q_IMPORT_PLUGIN(QMinimalIntegrationPlugin);
+Q_IMPORT_PLUGIN(QOffscreenIntegrationPlugin);
+Q_IMPORT_PLUGIN(QTgaPlugin);
+Q_IMPORT_PLUGIN(QTiffPlugin);
+Q_IMPORT_PLUGIN(QTuioTouchPlugin);
+Q_IMPORT_PLUGIN(QWbmpPlugin);
+Q_IMPORT_PLUGIN(QWebpPlugin);
 
 // Qt5Network
-Q_IMPORT_PLUGIN(QGenericEnginePlugin)
+Q_IMPORT_PLUGIN(QGenericEnginePlugin);
 
 // Qt5Qml
-Q_IMPORT_PLUGIN(QDebugMessageServiceFactory)
-Q_IMPORT_PLUGIN(QLocalClientConnectionFactory)
-Q_IMPORT_PLUGIN(QQmlDebugServerFactory)
-Q_IMPORT_PLUGIN(QQmlDebuggerServiceFactory)
-Q_IMPORT_PLUGIN(QQmlInspectorServiceFactory)
-Q_IMPORT_PLUGIN(QQmlNativeDebugConnectorFactory)
-Q_IMPORT_PLUGIN(QQmlNativeDebugServiceFactory)
-Q_IMPORT_PLUGIN(QQmlPreviewServiceFactory)
-Q_IMPORT_PLUGIN(QQmlProfilerServiceFactory)
-Q_IMPORT_PLUGIN(QQuickProfilerAdapterFactory)
-Q_IMPORT_PLUGIN(QTcpServerConnectionFactory)
+Q_IMPORT_PLUGIN(QDebugMessageServiceFactory);
+Q_IMPORT_PLUGIN(QLocalClientConnectionFactory);
+Q_IMPORT_PLUGIN(QQmlDebugServerFactory);
+Q_IMPORT_PLUGIN(QQmlDebuggerServiceFactory);
+Q_IMPORT_PLUGIN(QQmlInspectorServiceFactory);
+Q_IMPORT_PLUGIN(QQmlNativeDebugConnectorFactory);
+Q_IMPORT_PLUGIN(QQmlNativeDebugServiceFactory);
+Q_IMPORT_PLUGIN(QQmlPreviewServiceFactory);
+Q_IMPORT_PLUGIN(QQmlProfilerServiceFactory);
+Q_IMPORT_PLUGIN(QQuickProfilerAdapterFactory);
+Q_IMPORT_PLUGIN(QTcpServerConnectionFactory);
 
 // Qt5Svg
-Q_IMPORT_PLUGIN(QSvgIconPlugin)
-Q_IMPORT_PLUGIN(QSvgPlugin)
+Q_IMPORT_PLUGIN(QSvgIconPlugin);
+Q_IMPORT_PLUGIN(QSvgPlugin);
 ```
 
 Generated  `Q_IMPORT_PLUGIN` are dependent on which Qt module you are using. You should register module with `qt5_use_modules` macro.
@@ -63,18 +63,18 @@ The second macro `qt_generate_qml_plugin_import` will work the same way but will
 
 #include <QtPlugin>
 
-Q_IMPORT_PLUGIN(QtQuick2Plugin)
-Q_IMPORT_PLUGIN(QtQuickLayoutsPlugin)
-Q_IMPORT_PLUGIN(QtQuickControls2Plugin)
-Q_IMPORT_PLUGIN(QtQuickTemplates2Plugin)
-Q_IMPORT_PLUGIN(QtQuick2WindowPlugin)
-Q_IMPORT_PLUGIN(QtQuickControls2MaterialStylePlugin)
-Q_IMPORT_PLUGIN(QmlSettingsPlugin)
-Q_IMPORT_PLUGIN(QtQuickControls2FusionStylePlugin)
-Q_IMPORT_PLUGIN(QtQuickControls2UniversalStylePlugin)
-Q_IMPORT_PLUGIN(QtQuickControls2ImagineStylePlugin)
-Q_IMPORT_PLUGIN(QtGraphicalEffectsPlugin)
-Q_IMPORT_PLUGIN(QtGraphicalEffectsPrivatePlugin)
+Q_IMPORT_PLUGIN(QtQuick2Plugin);
+Q_IMPORT_PLUGIN(QtQuickLayoutsPlugin);
+Q_IMPORT_PLUGIN(QtQuickControls2Plugin);
+Q_IMPORT_PLUGIN(QtQuickTemplates2Plugin);
+Q_IMPORT_PLUGIN(QtQuick2WindowPlugin);
+Q_IMPORT_PLUGIN(QtQuickControls2MaterialStylePlugin);
+Q_IMPORT_PLUGIN(QmlSettingsPlugin);
+Q_IMPORT_PLUGIN(QtQuickControls2FusionStylePlugin);
+Q_IMPORT_PLUGIN(QtQuickControls2UniversalStylePlugin);
+Q_IMPORT_PLUGIN(QtQuickControls2ImagineStylePlugin);
+Q_IMPORT_PLUGIN(QtGraphicalEffectsPlugin);
+Q_IMPORT_PLUGIN(QtGraphicalEffectsPrivatePlugin);
 ```
 
 This macro use the qt tool `qmlimportscanner` present in QtSdk/bin folder. It will scan your qml folder and import only required plugins.
