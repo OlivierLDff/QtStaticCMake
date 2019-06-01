@@ -17,12 +17,6 @@ SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${QT_STATIC_SOURCE_DIR}/cmake)
 # Indicate that we have found the root sdk
 SET(QT_STATIC_CMAKE_FOUND ON CACHE BOOL "QtStaticCMake have been found" FORCE)
 
-SET(QT_STATIC_FILE_HEADER "// File Generated via CMake script during build time.\n"
-        "// The purpose of this file is to force the static load of qml plugin during static build\n"
-        "// Please rerun CMake to update this file.\n"
-        "// File will be overwrite at each CMake run.\n"
-        "\n#include <QtPlugin>\n\n" CACHE STRING "Header of generated files" FORCE)
-
 # ┌──────────────────────────────────────────────────────────────────┐
 # │                    GENERATE QML PLUGIN                           │
 # └──────────────────────────────────────────────────────────────────┘
@@ -139,7 +133,11 @@ MACRO(qt_generate_qml_plugin_import TARGET)
 
     SET(QT_STATIC_QML_PLUGIN_SRC_FILE "${QT_STATIC_OUTPUT_DIR}/${QT_STATIC_OUTPUT}")
 
-    FILE(WRITE ${QT_STATIC_QML_PLUGIN_SRC_FILE} ${QT_STATIC_FILE_HEADER})
+    FILE(WRITE ${QT_STATIC_QML_PLUGIN_SRC_FILE} "// File Generated via CMake script during build time.\n"
+        "// The purpose of this file is to force the static load of qml plugin during static build\n"
+        "// Please rerun CMake to update this file.\n"
+        "// File will be overwrite at each CMake run.\n"
+        "\n#include <QtPlugin>\n\n")
 
     FOREACH(PLUGIN ${QT_STATIC_QML_DEPENDENCIES_PLUGINS})
         FILE(APPEND ${QT_STATIC_QML_PLUGIN_SRC_FILE} "Q_IMPORT_PLUGIN(${PLUGIN});\n")
@@ -215,7 +213,11 @@ MACRO(qt_generate_plugin_import TARGET)
     SET(QT_STATIC_PLUGIN_SRC_FILE "${QT_STATIC_OUTPUT_DIR}/${QT_STATIC_OUTPUT}")
 
     # Write the file header
-    FILE(WRITE ${QT_STATIC_PLUGIN_SRC_FILE} ${QT_STATIC_FILE_HEADER})
+    FILE(WRITE ${QT_STATIC_PLUGIN_SRC_FILE} "// File Generated via CMake script during build time.\n"
+        "// The purpose of this file is to force the static load of qml plugin during static build\n"
+        "// Please rerun CMake to update this file.\n"
+        "// File will be overwrite at each CMake run.\n"
+        "\n#include <QtPlugin>\n\n")
 
     # Get all available Qt5 module
     FILE(GLOB QT_STATIC_AVAILABLES_QT_DIRECTORIES
