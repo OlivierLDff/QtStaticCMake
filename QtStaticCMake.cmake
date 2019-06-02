@@ -89,67 +89,78 @@ MACRO(qt_generate_qml_plugin_import TARGET)
     ENDIF(QT_STATIC_VERBOSE)
 
     IF(QT_STATIC_QML_SRC)
+        # Debug
+        IF(QT_STATIC_VERBOSE)
+        MESSAGE(STATUS "Get Qml Plugin dependencies for ${QT_STATIC_TARGET}. qmlimportscanner path is ${QT_STATIC_QT_ROOT}/bin/qmlimportscanner. RootPath is ${QT_STATIC_QML_SRC} and importPath is ${QT_STATIC_QML_DIR}.")
+        ENDIF(QT_STATIC_VERBOSE)
 
-    # Debug
-    IF(QT_STATIC_VERBOSE)
-    MESSAGE(STATUS "Get Qml Plugin dependencies for ${QT_STATIC_TARGET}. qmlimportscanner path is ${QT_STATIC_QT_ROOT}/bin/qmlimportscanner. RootPath is ${QT_STATIC_QML_SRC} and importPath is ${QT_STATIC_QML_DIR}.")
-    ENDIF(QT_STATIC_VERBOSE)
+        # Get Qml Plugin dependencies
+        EXECUTE_PROCESS(
+            COMMAND ${QT_STATIC_QT_ROOT}/bin/qmlimportscanner -rootPath ${QT_STATIC_QML_SRC} -importPath ${QT_STATIC_QML_DIR} 
+            WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+            OUTPUT_VARIABLE QT_STATIC_QML_DEPENDENCIES_JSON
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
 
-    # Get Qml Plugin dependencies
-    EXECUTE_PROCESS(
-        COMMAND ${QT_STATIC_QT_ROOT}/bin/qmlimportscanner -rootPath ${QT_STATIC_QML_SRC} -importPath ${QT_STATIC_QML_DIR} 
-        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-        OUTPUT_VARIABLE QT_STATIC_QML_DEPENDENCIES_JSON
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+        # Dump Json File for debug
+        #MESSAGE(STATUS ${QT_STATIC_QML_DEPENDENCIES_JSON})
 
-    MESSAGE(STATUS ${QT_STATIC_QML_DEPENDENCIES_JSON})
+        # match all classname: (QtPluginStuff)
+        STRING(REGEX MATCHALL "\"classname\"\\: \"([a-zA-Z0-9]*)\""
+           QT_STATIC_QML_DEPENDENCIES_JSON_MATCH ${QT_STATIC_QML_DEPENDENCIES_JSON})
 
-    string(REGEX MATCHALL "\"classname\"\\: \"([a-zA-Z0-9]*)\""
-       QT_STATIC_QML_DEPENDENCIES_JSON_MATCH ${QT_STATIC_QML_DEPENDENCIES_JSON})
+        # Show regex match for debug
+        #MESSAGE(STATUS "match : ${QT_STATIC_QML_DEPENDENCIES_JSON_MATCH}")
 
-    MESSAGE(STATUS "match : ${QT_STATIC_QML_DEPENDENCIES_JSON_MATCH}")
+        # Loop over each match to extract plugin name
+        FOREACH(MATCH ${QT_STATIC_QML_DEPENDENCIES_JSON_MATCH})
+            # Debug output
+            #MESSAGE(STATUS "MATCH : ${MATCH}")
+            # Extract plugin name
+            STRING(REGEX MATCH "\"classname\"\\: \"([a-zA-Z0-9]*)\"" MATCH_OUT ${MATCH})
+            # Debug output
+            #MESSAGE(STATUS "CMAKE_MATCH_1 : ${CMAKE_MATCH_1}")
+            # Check plugin isn't present in the list QT_STATIC_QML_DEPENDENCIES_PLUGINS
+            LIST(FIND QT_STATIC_QML_DEPENDENCIES_PLUGINS ${CMAKE_MATCH_1} _PLUGIN_INDEX)
+            IF(_PLUGIN_INDEX EQUAL -1)
+                LIST(APPEND QT_STATIC_QML_DEPENDENCIES_PLUGINS ${CMAKE_MATCH_1})
+            ENDIF(_PLUGIN_INDEX EQUAL -1)
+        ENDFOREACH()
 
-    FOREACH(MATCH ${QT_STATIC_QML_DEPENDENCIES_JSON_MATCH})
-        MESSAGE(STATUS "MATCH : ${MATCH}")
-        string(REGEX MATCH "\"classname\"\\: \"([a-zA-Z0-9]*)\"" MATCH_OUT ${MATCH})
-        MESSAGE(STATUS "CMAKE_MATCH_1 : ${CMAKE_MATCH_1}")
-        LIST(FIND QT_STATIC_QML_DEPENDENCIES_PLUGINS ${CMAKE_MATCH_1} _PLUGIN_INDEX)
-        IF(_PLUGIN_INDEX EQUAL -1)
-            LIST(APPEND QT_STATIC_QML_DEPENDENCIES_PLUGINS ${CMAKE_MATCH_1})
-        ENDIF(_PLUGIN_INDEX EQUAL -1)
-    ENDFOREACH()
+        # Print dependencies
+        IF(QT_STATIC_VERBOSE)
+        MESSAGE(STATUS "${QT_STATIC_TARGET} qml plugin dependencies:")
+        FOREACH(PLUGIN ${QT_STATIC_QML_DEPENDENCIES_PLUGINS})
+            MESSAGE(STATUS "${PLUGIN}")
+        ENDFOREACH()
+        ENDIF(QT_STATIC_VERBOSE)
 
-    IF(QT_STATIC_VERBOSE)
-    MESSAGE(STATUS "${QT_STATIC_TARGET} qml plugin dependencies:")
-    FOREACH(PLUGIN ${QT_STATIC_QML_DEPENDENCIES_PLUGINS})
-        MESSAGE(STATUS "${PLUGIN}")
-    ENDFOREACH()
-    ENDIF(QT_STATIC_VERBOSE)
+        IF(QT_STATIC_VERBOSE)
+        MESSAGE(STATUS "Generate ${QT_STATIC_OUTPUT} in ${QT_STATIC_OUTPUT_DIR}")
+        ENDIF(QT_STATIC_VERBOSE)
 
-    IF(QT_STATIC_VERBOSE)
-    MESSAGE(STATUS "Generate ${QT_STATIC_OUTPUT} in ${QT_STATIC_OUTPUT_DIR}")
-    ENDIF(QT_STATIC_VERBOSE)
+        # Build file path
+        SET(QT_STATIC_QML_PLUGIN_SRC_FILE "${QT_STATIC_OUTPUT_DIR}/${QT_STATIC_OUTPUT}")
 
-    SET(QT_STATIC_QML_PLUGIN_SRC_FILE "${QT_STATIC_OUTPUT_DIR}/${QT_STATIC_OUTPUT}")
+        # Write file header
+        FILE(WRITE ${QT_STATIC_QML_PLUGIN_SRC_FILE} "// File Generated via CMake script during build time.\n"
+            "// The purpose of this file is to force the static load of qml plugin during static build\n"
+            "// Please rerun CMake to update this file.\n"
+            "// File will be overwrite at each CMake run.\n"
+            "\n#include <QtPlugin>\n\n")
 
-    FILE(WRITE ${QT_STATIC_QML_PLUGIN_SRC_FILE} "// File Generated via CMake script during build time.\n"
-        "// The purpose of this file is to force the static load of qml plugin during static build\n"
-        "// Please rerun CMake to update this file.\n"
-        "// File will be overwrite at each CMake run.\n"
-        "\n#include <QtPlugin>\n\n")
+        # Write Q_IMPORT_PLUGIN for each plugin
+        FOREACH(PLUGIN ${QT_STATIC_QML_DEPENDENCIES_PLUGINS})
+            FILE(APPEND ${QT_STATIC_QML_PLUGIN_SRC_FILE} "Q_IMPORT_PLUGIN(${PLUGIN});\n")
+        ENDFOREACH()
 
-    FOREACH(PLUGIN ${QT_STATIC_QML_DEPENDENCIES_PLUGINS})
-        FILE(APPEND ${QT_STATIC_QML_PLUGIN_SRC_FILE} "Q_IMPORT_PLUGIN(${PLUGIN});\n")
-    ENDFOREACH()
-
-    IF(QT_STATIC_VERBOSE)
-    MESSAGE(STATUS "Add ${QT_STATIC_QML_PLUGIN_SRC_FILE} to ${QT_STATIC_TARGET} sources")
-    ENDIF(QT_STATIC_VERBOSE)
-    target_sources(${QT_STATIC_TARGET} PRIVATE ${QT_STATIC_QML_PLUGIN_SRC_FILE})     
-
+        # Add the file to the target sources
+        IF(QT_STATIC_VERBOSE)
+        MESSAGE(STATUS "Add ${QT_STATIC_QML_PLUGIN_SRC_FILE} to ${QT_STATIC_TARGET} sources")
+        ENDIF(QT_STATIC_VERBOSE)
+        target_sources(${QT_STATIC_TARGET} PRIVATE ${QT_STATIC_QML_PLUGIN_SRC_FILE})
     ELSE(QT_STATIC_QML_SRC)
-        MESSAGE(WARNING "QT_STATIC_QML_SRC not specified. Can't generate Q_IMPORT_PLUGIN for qml")
+        MESSAGE(WARNING "QT_STATIC_QML_SRC not specified. Can't generate Q_IMPORT_PLUGIN for qml plugin")
     ENDIF(QT_STATIC_QML_SRC)
 ENDMACRO(qt_generate_qml_plugin_import TARGET)
 
