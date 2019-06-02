@@ -12,10 +12,10 @@ GET_FILENAME_COMPONENT(QT_STATIC_QT_ROOT "${Qt5Core_DIR}/../../.." ABSOLUTE)
 MESSAGE(STATUS "Found Qt SDK Root: ${QT_STATIC_QT_ROOT}")
 
 SET(QT_STATIC_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
-SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${QT_STATIC_SOURCE_DIR}/cmake)
 
 # Indicate that we have found the root sdk
 SET(QT_STATIC_CMAKE_FOUND ON CACHE BOOL "QtStaticCMake have been found" FORCE)
+SET(QT_STATIC_CMAKE_VERSION "1.0.1" CACHE STRING "QtStaticCMake version" FORCE)
 
 # ┌──────────────────────────────────────────────────────────────────┐
 # │                    GENERATE QML PLUGIN                           │
