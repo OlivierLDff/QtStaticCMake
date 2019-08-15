@@ -82,7 +82,7 @@ This macro use the qt tool `qmlimportscanner` present in QtSdk/bin folder. It wi
 ## How to use
 
 ```cmake
-qt_generate_qml_plugin_import(YourApp
+qt_generate_plugin_import(YourApp
   OUTPUT "YourApp_plugin_import.cpp"
   OUTPUT_DIR "/path/to/output"
   VERBOSE)
