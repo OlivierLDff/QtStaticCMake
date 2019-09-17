@@ -57,7 +57,7 @@ macro(qt_generate_qml_plugin_import TARGET)
     if(NOT QT_STATIC_QML_DIR)
         set(QT_STATIC_QML_DIR "${QT_STATIC_QT_ROOT}/qml")
         if(QT_STATIC_VERBOSE)
-        message(STATUS "QML_DIR not specified, default to ${QT_STATIC_QML_DIR}")
+            message(STATUS "QML_DIR not specified, default to ${QT_STATIC_QML_DIR}")
         endif()
     endif()
 
@@ -65,7 +65,7 @@ macro(qt_generate_qml_plugin_import TARGET)
     if(NOT QT_STATIC_OUTPUT)
         set(QT_STATIC_OUTPUT ${QT_STATIC_TARGET}_qml_plugin_import.cpp)
         if(QT_STATIC_VERBOSE)
-        message(STATUS "OUTPUT not specified, default to ${QT_STATIC_OUTPUT}")
+            message(STATUS "OUTPUT not specified, default to ${QT_STATIC_OUTPUT}")
         endif()
     endif()
 
@@ -73,7 +73,7 @@ macro(qt_generate_qml_plugin_import TARGET)
     if(NOT QT_STATIC_OUTPUT_DIR)
         set(QT_STATIC_OUTPUT_DIR ${PROJECT_BINARY_DIR})
         if(QT_STATIC_VERBOSE)
-        message(STATUS "OUTPUT not specified, default to ${QT_STATIC_OUTPUT_DIR}")
+            message(STATUS "OUTPUT not specified, default to ${QT_STATIC_OUTPUT_DIR}")
         endif()
     endif()
 
@@ -91,7 +91,7 @@ macro(qt_generate_qml_plugin_import TARGET)
     if(QT_STATIC_QML_SRC)
         # Debug
         if(QT_STATIC_VERBOSE)
-        message(STATUS "Get Qml Plugin dependencies for ${QT_STATIC_TARGET}. qmlimportscanner path is ${QT_STATIC_QT_ROOT}/bin/qmlimportscanner. RootPath is ${QT_STATIC_QML_SRC} and importPath is ${QT_STATIC_QML_DIR}.")
+            message(STATUS "Get Qml Plugin dependencies for ${QT_STATIC_TARGET}. qmlimportscanner path is ${QT_STATIC_QT_ROOT}/bin/qmlimportscanner. RootPath is ${QT_STATIC_QML_SRC} and importPath is ${QT_STATIC_QML_DIR}.")
         endif()
 
         # Get Qml Plugin dependencies
@@ -129,14 +129,14 @@ macro(qt_generate_qml_plugin_import TARGET)
 
         # Print dependencies
         if(QT_STATIC_VERBOSE)
-        message(STATUS "${QT_STATIC_TARGET} qml plugin dependencies:")
-        foreach(PLUGIN ${QT_STATIC_QML_DEPENDENCIES_PLUGINS})
-            message(STATUS "${PLUGIN}")
-        endforeach()
+            message(STATUS "${QT_STATIC_TARGET} qml plugin dependencies:")
+            foreach(PLUGIN ${QT_STATIC_QML_DEPENDENCIES_PLUGINS})
+                message(STATUS "${PLUGIN}")
+            endforeach()
         endif()
 
         if(QT_STATIC_VERBOSE)
-        message(STATUS "Generate ${QT_STATIC_OUTPUT} in ${QT_STATIC_OUTPUT_DIR}")
+            message(STATUS "Generate ${QT_STATIC_OUTPUT} in ${QT_STATIC_OUTPUT_DIR}")
         endif()
 
         # Build file path
@@ -156,7 +156,7 @@ macro(qt_generate_qml_plugin_import TARGET)
 
         # Add the file to the target sources
         if(QT_STATIC_VERBOSE)
-        message(STATUS "Add ${QT_STATIC_QML_PLUGIN_SRC_FILE} to ${QT_STATIC_TARGET} sources")
+            message(STATUS "Add ${QT_STATIC_QML_PLUGIN_SRC_FILE} to ${QT_STATIC_TARGET} sources")
         endif()
         target_sources(${QT_STATIC_TARGET} PRIVATE ${QT_STATIC_QML_PLUGIN_SRC_FILE})
     else()
