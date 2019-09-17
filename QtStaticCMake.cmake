@@ -196,7 +196,7 @@ macro(qt_generate_plugin_import TARGET)
     if(NOT QT_STATIC_OUTPUT)
         set(QT_STATIC_OUTPUT ${QT_STATIC_TARGET}_plugin_import.cpp)
         if(QT_STATIC_VERBOSE)
-        message(STATUS "OUTPUT not specified, default to ${QT_STATIC_OUTPUT}")
+            message(STATUS "OUTPUT not specified, default to ${QT_STATIC_OUTPUT}")
         endif()
     endif()
 
@@ -204,7 +204,7 @@ macro(qt_generate_plugin_import TARGET)
     if(NOT QT_STATIC_OUTPUT_DIR)
         set(QT_STATIC_OUTPUT_DIR ${PROJECT_BINARY_DIR})
         if(QT_STATIC_VERBOSE)
-        message(STATUS "OUTPUT not specified, default to ${QT_STATIC_OUTPUT_DIR}")
+            message(STATUS "OUTPUT not specified, default to ${QT_STATIC_OUTPUT_DIR}")
         endif()
     endif()
 
@@ -218,7 +218,7 @@ macro(qt_generate_plugin_import TARGET)
     endif()
 
     if(QT_STATIC_VERBOSE)
-    message(STATUS "Generate ${QT_STATIC_OUTPUT} in ${QT_STATIC_OUTPUT_DIR}")
+        message(STATUS "Generate ${QT_STATIC_OUTPUT} in ${QT_STATIC_OUTPUT_DIR}")
     endif()
 
     set(QT_STATIC_PLUGIN_SRC_FILE "${QT_STATIC_OUTPUT_DIR}/${QT_STATIC_OUTPUT}")
@@ -265,21 +265,21 @@ macro(qt_generate_plugin_import TARGET)
 
     # Print dependencies
     if(QT_STATIC_VERBOSE)
-    message(STATUS "${QT_STATIC_TARGET} plugin dependencies:")
-    foreach(PLUGIN ${QT_STATIC_DEPENDENCIES_PLUGINS})
-        message(STATUS "${PLUGIN}")
-    endforeach()
+        message(STATUS "${QT_STATIC_TARGET} plugin dependencies:")
+        foreach(PLUGIN ${QT_STATIC_DEPENDENCIES_PLUGINS})
+            message(STATUS "${PLUGIN}")
+        endforeach()
     endif()
 
     # Add the generated file into source of the application
     if(QT_STATIC_VERBOSE)
-    message(STATUS "Add ${QT_STATIC_PLUGIN_SRC_FILE} to ${QT_STATIC_TARGET} sources")
+        message(STATUS "Add ${QT_STATIC_PLUGIN_SRC_FILE} to ${QT_STATIC_TARGET} sources")
     endif()
     target_sources(${QT_STATIC_TARGET} PRIVATE ${QT_STATIC_PLUGIN_SRC_FILE})
 
     # Link to the platform library
     if(QT_STATIC_VERBOSE)
-    message(STATUS "Add -u _qt_registerPlatformPlugin linker flag to ${QT_IOS_TARGET} in order to force load qios library")
+        message(STATUS "Add -u _qt_registerPlatformPlugin linker flag to ${QT_IOS_TARGET} in order to force load qios library")
     endif()
     target_link_libraries(${QT_STATIC_TARGET} "-u _qt_registerPlatformPlugin")
 
