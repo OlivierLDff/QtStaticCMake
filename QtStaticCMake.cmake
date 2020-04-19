@@ -13,10 +13,6 @@ message(STATUS "Found Qt SDK Root: ${QT_STATIC_QT_ROOT}")
 
 set(QT_STATIC_SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
-# Indicate that we have found the root sdk
-set(QT_STATIC_CMAKE_FOUND ON CACHE BOOL "QtStaticCMake have been found" FORCE)
-set(QT_STATIC_CMAKE_VERSION "1.0.1" CACHE STRING "QtStaticCMake version" FORCE)
-
 # ┌──────────────────────────────────────────────────────────────────┐
 # │                    GENERATE QML PLUGIN                           │
 # └──────────────────────────────────────────────────────────────────┘
@@ -24,12 +20,18 @@ set(QT_STATIC_CMAKE_VERSION "1.0.1" CACHE STRING "QtStaticCMake version" FORCE)
 # We need to parse some arguments
 include(CMakeParseArguments)
 
-# Usage: 
+# Usage:
 # qt_generate_qml_plugin_import(YourApp
 #   QML_DIR "/path/to/qtsdk"
 #   QML_SRC "/path/to/yourApp/qml"
 #   OUTPUT "YourApp_qml_plugin_import.cpp"
 #   OUTPUT_DIR "/path/to/generate"
+#   EXTRA_PLUGIN
+#     QtQuickVirtualKeyboardPlugin
+#     QtQuickVirtualKeyboardSettingsPlugin
+#     QtQuickVirtualKeyboardStylesPlugin
+#     QmlFolderListModelPlugin
+#     QQuickLayoutsPlugin
 #   VERBOSE
 #)
 macro(qt_generate_qml_plugin_import TARGET)
@@ -40,7 +42,8 @@ macro(qt_generate_qml_plugin_import TARGET)
         OUTPUT
         OUTPUT_DIR
         )
-    set(QT_STATIC_MULTI_VALUE_ARG )
+    set(QT_STATIC_MULTI_VALUE_ARG
+        EXTRA_PLUGIN)
 
      # parse the macro arguments
     cmake_parse_arguments(ARGSTATIC "${QT_STATIC_OPTIONS}" "${QT_STATIC_ONE_VALUE_ARG}" "${QT_STATIC_MULTI_VALUE_ARG}" ${ARGN})
@@ -80,11 +83,12 @@ macro(qt_generate_qml_plugin_import TARGET)
     # Print config
     if(QT_STATIC_VERBOSE)
         message(STATUS "------ QtStaticCMake Qml Generate Configuration ------")
-        message(STATUS "TARGET      : ${QT_STATIC_TARGET}")
-        message(STATUS "QML_DIR     : ${QT_STATIC_QML_DIR}")
-        message(STATUS "QML_SRC     : ${QT_STATIC_QML_SRC}")
-        message(STATUS "OUTPUT      : ${QT_STATIC_OUTPUT}")
-        message(STATUS "OUTPUT_DIR  : ${QT_STATIC_OUTPUT_DIR}")
+        message(STATUS "TARGET          : ${QT_STATIC_TARGET}")
+        message(STATUS "QML_DIR         : ${QT_STATIC_QML_DIR}")
+        message(STATUS "QML_SRC         : ${QT_STATIC_QML_SRC}")
+        message(STATUS "OUTPUT          : ${QT_STATIC_OUTPUT}")
+        message(STATUS "OUTPUT_DIR      : ${QT_STATIC_OUTPUT_DIR}")
+        message(STATUS "EXTRA_PLUGIN    : ${ARGSTATIC_EXTRA_PLUGIN}")
         message(STATUS "------ QtStaticCMake Qml Generate End Configuration ------")
     endif()
 
@@ -96,18 +100,24 @@ macro(qt_generate_qml_plugin_import TARGET)
 
         # Get Qml Plugin dependencies
         execute_process(
-            COMMAND ${QT_STATIC_QT_ROOT}/bin/qmlimportscanner -rootPath ${QT_STATIC_QML_SRC} -importPath ${QT_STATIC_QML_DIR} 
+            COMMAND ${QT_STATIC_QT_ROOT}/bin/qmlimportscanner -rootPath ${QT_STATIC_QML_SRC} -importPath ${QT_STATIC_QML_DIR}
             WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
             OUTPUT_VARIABLE QT_STATIC_QML_DEPENDENCIES_JSON
             OUTPUT_STRIP_TRAILING_WHITESPACE
         )
 
         # Dump Json File for debug
-        #message(STATUS ${QT_STATIC_QML_DEPENDENCIES_JSON})
+        if(QT_STATIC_VERBOSE)
+            message(STATUS "qmlimportscanner result: ${QT_STATIC_QML_DEPENDENCIES_JSON}")
+        endif()
 
         # match all classname: (QtPluginStuff)
-        string(REGEX MATCHALL "\"classname\"\\: \"([a-zA-Z0-9]*)\""
-           QT_STATIC_QML_DEPENDENCIES_JSON_MATCH ${QT_STATIC_QML_DEPENDENCIES_JSON})
+        if(QT_STATIC_QML_DEPENDENCIES_JSON)
+            string(REGEX MATCHALL "\"classname\"\\: \"([a-zA-Z0-9]*)\""
+                QT_STATIC_QML_DEPENDENCIES_JSON_MATCH ${QT_STATIC_QML_DEPENDENCIES_JSON})
+        else()
+            message(WARNING "qmlimportscanner didn't find any dependencies")
+        endif()
 
         # Show regex match for debug
         #message(STATUS "match : ${QT_STATIC_QML_DEPENDENCIES_JSON_MATCH}")
@@ -149,6 +159,20 @@ macro(qt_generate_qml_plugin_import TARGET)
             "// File will be overwrite at each CMake run.\n"
             "\n#include <QtPlugin>\n\n")
 
+        function(qt_static_generate_path_suffix result parentDir)
+            file(GLOB_RECURSE children LIST_DIRECTORIES TRUE RELATIVE ${parentDir} ${parentDir}/*)
+            set(dirlist "")
+            foreach(child ${children})
+                if(IS_DIRECTORY ${parentDir}/${child})
+                    list(APPEND dirlist ${child})
+                endif()
+            endforeach()
+            set(${result} ${dirlist} PARENT_SCOPE)
+        endfunction()
+
+        qt_static_generate_path_suffix(PLUGIN_PATH_SUFFIXES ${QT_STATIC_QML_DIR})
+
+
         # Write Q_IMPORT_PLUGIN for each plugin
         foreach(PLUGIN ${QT_STATIC_QML_DEPENDENCIES_PLUGINS})
             file(APPEND ${QT_STATIC_QML_PLUGIN_SRC_FILE} "Q_IMPORT_PLUGIN(${PLUGIN});\n")
@@ -159,6 +183,59 @@ macro(qt_generate_qml_plugin_import TARGET)
             message(STATUS "Add ${QT_STATIC_QML_PLUGIN_SRC_FILE} to ${QT_STATIC_TARGET} sources")
         endif()
         target_sources(${QT_STATIC_TARGET} PRIVATE ${QT_STATIC_QML_PLUGIN_SRC_FILE})
+
+        set(QT_STATIC_ALL_PLUGINS ${QT_STATIC_QML_DEPENDENCIES_PLUGINS} ${ARGSTATIC_EXTRA_PLUGIN})
+
+        # Find the library associated with the plugin
+        foreach(PLUGIN ${QT_STATIC_ALL_PLUGINS})
+
+            # TRICK THAT WILL BREAK
+            if(${PLUGIN} STREQUAL "QtQuick2WindowPlugin")
+                set(PLUGIN "WindowPlugin")
+            endif()
+
+            find_library(${PLUGIN}_plugin "${PLUGIN}"
+                HINTS ${QT_STATIC_QML_DIR}
+                PATH_SUFFIXES ${PLUGIN_PATH_SUFFIXES})
+
+            find_library(${PLUGIN}_plugind "${PLUGIN}d"
+                HINTS ${QT_STATIC_QML_DIR}
+                PATH_SUFFIXES ${PLUGIN_PATH_SUFFIXES})
+
+            if(${${PLUGIN}_plugin} STREQUAL "${PLUGIN}_plugin-NOTFOUND")
+                # Fallback on debug library
+                if(${${PLUGIN}_plugind} STREQUAL "${PLUGIN}_plugind-NOTFOUND")
+                    message(WARNING "Fail to find ${PLUGIN} for release build (release or debug library not available)")
+                else()
+                    target_link_libraries(${QT_STATIC_TARGET} ${${PLUGIN}_plugind})
+                    if(QT_STATIC_VERBOSE)
+                        message(STATUS "${PLUGIN} : Found ${${PLUGIN}_plugind} for release")
+                    endif()
+                endif()
+            else()
+                target_link_libraries(${QT_STATIC_TARGET} $<$<NOT:$<CONFIG:Debug>>:${${PLUGIN}_plugin}>)
+                if(QT_STATIC_VERBOSE)
+                    message(STATUS "${PLUGIN} : Found ${${PLUGIN}_plugin} for release")
+                endif()
+            endif()
+
+            if(${${PLUGIN}_plugind} STREQUAL "${PLUGIN}_plugind-NOTFOUND")
+                # Fallback on release library
+                if(${${PLUGIN}_plugin} STREQUAL "${PLUGIN}_plugin-NOTFOUND")
+                    message(WARNING "Fail to find ${PLUGIN} for debug build (release or debug library not available)")
+                else()
+                    target_link_libraries(${QT_STATIC_TARGET} ${${PLUGIN}_plugin})
+                    if(QT_STATIC_VERBOSE)
+                        message(STATUS "${PLUGIN} : Found ${${PLUGIN}_plugin} for debug")
+                    endif()
+                endif()
+            else()
+                target_link_libraries(${QT_STATIC_TARGET} $<$<CONFIG:Debug>:${${PLUGIN}_plugind}>)
+                if(QT_STATIC_VERBOSE)
+                    message(STATUS "${PLUGIN} : Found ${${PLUGIN}_plugin} for debug")
+                endif()
+            endif()
+        endforeach()
     else()
         message(WARNING "QT_STATIC_QML_SRC not specified. Can't generate Q_IMPORT_PLUGIN for qml plugin")
     endif()
@@ -168,7 +245,7 @@ endmacro()
 # │                     GENERATE QT PLUGIN                           │
 # └──────────────────────────────────────────────────────────────────┘
 
-# Usage: 
+# Usage:
 # qt_generate_plugin_import(YourApp
 #   OUTPUT "YourApp_plugin_import.cpp"
 #   OUTPUT_DIR "/path/to/generate"
@@ -228,11 +305,11 @@ macro(qt_generate_plugin_import TARGET)
         "// The purpose of this file is to force the static load of qml plugin during static build\n"
         "// Please rerun CMake to update this file.\n"
         "// File will be overwrite at each CMake run.\n"
-        "\n#include <QtPlugin>\n\n")
+        "\n#include <QtPlugin>\n")
 
     # Get all available Qt5 module
     file(GLOB QT_STATIC_AVAILABLES_QT_DIRECTORIES
-        LIST_DIRECTORIES true 
+        LIST_DIRECTORIES true
         RELATIVE ${QT_STATIC_QT_ROOT}/lib/cmake
         ${QT_STATIC_QT_ROOT}/lib/cmake/Qt5*)
     foreach(DIR ${QT_STATIC_AVAILABLES_QT_DIRECTORIES})
@@ -256,6 +333,12 @@ macro(qt_generate_plugin_import TARGET)
                         if(_PLUGIN_INDEX EQUAL -1)
                             list(APPEND QT_STATIC_DEPENDENCIES_PLUGINS ${PLUGIN_NAME})
                             file(APPEND ${QT_STATIC_PLUGIN_SRC_FILE} "Q_IMPORT_PLUGIN(${PLUGIN_NAME});\n")
+
+                            set(PLUGIN_LIBRARY Qt5::${PLUGIN_NAME})
+                            if(QT_STATIC_VERBOSE)
+                                message(STATUS "Force link to qml plugin ${PLUGIN_LIBRARY}")
+                            endif()
+                            target_link_libraries(${QT_STATIC_TARGET} ${PLUGIN_LIBRARY})
                         endif()
                     endif()
                 endforeach()
@@ -277,10 +360,12 @@ macro(qt_generate_plugin_import TARGET)
     endif()
     target_sources(${QT_STATIC_TARGET} PRIVATE ${QT_STATIC_PLUGIN_SRC_FILE})
 
-    # Link to the platform library
-    if(QT_STATIC_VERBOSE)
-        message(STATUS "Add -u _qt_registerPlatformPlugin linker flag to ${QT_IOS_TARGET} in order to force load qios library")
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
+        # Link to the platform library
+        if(QT_STATIC_VERBOSE)
+            message(STATUS "Add -u _qt_registerPlatformPlugin linker flag to ${QT_STATIC_TARGET} in order to force load qios library")
+        endif()
+        target_link_libraries(${QT_STATIC_TARGET} "-u _qt_registerPlatformPlugin")
     endif()
-    target_link_libraries(${QT_STATIC_TARGET} "-u _qt_registerPlatformPlugin")
 
 endmacro()
