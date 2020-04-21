@@ -223,11 +223,11 @@ macro(qt_generate_qml_plugin_import TARGET)
         find_library(${PLUGIN}_plugind "${_plugin_name}d"
           HINTS ${${PLUGIN}_PATH})
       else()
-        find_library(${PLUGIN}_plugin "${_plugin_name}"
+        find_library(${PLUGIN}_plugin NAMES "${_plugin_name}" "lib${_plugin_name}"
           HINTS ${QT_STATIC_QML_DIR}
           PATH_SUFFIXES ${PLUGIN_PATH_SUFFIXES})
 
-        find_library(${PLUGIN}_plugind "${_plugin_name}d"
+        find_library(${PLUGIN}_plugind NAMES "${_plugin_name}d" "lib${_plugin_name}d"
           HINTS ${QT_STATIC_QML_DIR}
           PATH_SUFFIXES ${PLUGIN_PATH_SUFFIXES})
       endif()
