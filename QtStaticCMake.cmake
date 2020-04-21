@@ -210,24 +210,26 @@ macro(qt_generate_qml_plugin_import TARGET)
     foreach(PLUGIN ${QT_STATIC_ALL_PLUGINS})
 
       # Try to use plugin name from qmlimportscanner
-      set(_plugin_name ${${PLUGIN}_PLUGIN})
-      if(NOT _plugin_name)
-        set(_plugin_name ${PLUGIN})
+      set(_PLUGIN_LIBRARY_NAME ${${PLUGIN}_PLUGIN})
+      if(NOT _PLUGIN_LIBRARY_NAME)
+        set(_PLUGIN_LIBRARY_NAME ${PLUGIN})
       endif()
+
+      string(TOLOWER ${_PLUGIN_LIBRARY_NAME} _PLUGIN_LIBRARY_NAME_LOWER)
 
       # Try to use path from qmlimportscanner
       if(${${PLUGIN}_PATH})
-        find_library(${PLUGIN}_plugin "${_plugin_name}"
+        find_library(${PLUGIN}_plugin "${_PLUGIN_LIBRARY_NAME_LOWER}"
           HINTS ${${PLUGIN}_PATH})
 
-        find_library(${PLUGIN}_plugind "${_plugin_name}d"
+        find_library(${PLUGIN}_plugind "${_PLUGIN_LIBRARY_NAME_LOWER}d"
           HINTS ${${PLUGIN}_PATH})
       else()
-        find_library(${PLUGIN}_plugin NAMES "${_plugin_name}" "lib${_plugin_name}"
+        find_library(${PLUGIN}_plugin NAMES "${_PLUGIN_LIBRARY_NAME_LOWER}" "lib${_PLUGIN_LIBRARY_NAME_LOWER}"
           HINTS ${QT_STATIC_QML_DIR}
           PATH_SUFFIXES ${PLUGIN_PATH_SUFFIXES})
 
-        find_library(${PLUGIN}_plugind NAMES "${_plugin_name}d" "lib${_plugin_name}d"
+        find_library(${PLUGIN}_plugind NAMES "${_PLUGIN_LIBRARY_NAME_LOWER}d" "lib${_PLUGIN_LIBRARY_NAME_LOWER}d"
           HINTS ${QT_STATIC_QML_DIR}
           PATH_SUFFIXES ${PLUGIN_PATH_SUFFIXES})
       endif()
