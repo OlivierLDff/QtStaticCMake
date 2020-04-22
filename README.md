@@ -1,5 +1,9 @@
 # Qt Static CMake
 
+## Minimum working example
+
+You can find a minimum working example here : https://github.com/OlivierLDff/QQuickStaticHelloWorld
+
 ## Introduction
 
 This project aim is to provide 2 CMake macro that replicate QMake functionality to generate `Q_IMPORT_PLUGIN` macros when linking with a static version of Qt.
