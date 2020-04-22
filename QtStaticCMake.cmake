@@ -399,7 +399,7 @@ macro(qt_generate_plugin_import TARGET)
     if(QT_STATIC_VERBOSE)
       message(STATUS "Add -u _qt_registerPlatformPlugin linker flag to ${QT_STATIC_TARGET} in order to force load qios library")
     endif()
-    target_link_libraries(${QT_STATIC_TARGET} PRIVATE "-u _qt_registerPlatformPlugin")
+    target_link_libraries(${QT_STATIC_TARGET} PUBLIC "-u _qt_registerPlatformPlugin")
   endif()
 
 endmacro()
