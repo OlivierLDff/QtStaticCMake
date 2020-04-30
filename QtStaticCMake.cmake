@@ -146,7 +146,7 @@ macro(qt_generate_qml_plugin_import TARGET)
         if(_PLUGIN_INDEX EQUAL -1)
           list(APPEND QT_STATIC_QML_DEPENDENCIES_PLUGINS ${CMAKE_MATCH_1})
 
-          string(REGEX MATCH "\"plugin\"\\: \"([a-zA-Z0-9]*)\"" PLUGIN_NAME ${JSON_OBJECT})
+          string(REGEX MATCH "\"plugin\"\\: \"([a-zA-Z0-9_]*)\"" PLUGIN_NAME ${JSON_OBJECT})
           set(${_TEMP_CLASSNAME}_PLUGIN ${CMAKE_MATCH_1})
           #message(STATUS "PLUGIN_NAME : ${PLUGIN_NAME}")
           string(REGEX MATCH "\"path\"\\: \"([^\"]*)\"" PLUGIN_PATH ${JSON_OBJECT})
@@ -212,6 +212,7 @@ macro(qt_generate_qml_plugin_import TARGET)
       # Try to use plugin name from qmlimportscanner
       set(_PLUGIN_LIBRARY_NAME ${${PLUGIN}_PLUGIN})
       if(NOT _PLUGIN_LIBRARY_NAME)
+        #message(WARNING "Plugin ${PLUGIN} doesn't have a \"plugin\" field, use plugin name")
         set(_PLUGIN_LIBRARY_NAME ${PLUGIN})
       endif()
 
@@ -274,7 +275,7 @@ macro(qt_generate_qml_plugin_import TARGET)
     message(WARNING "QT_STATIC_QML_SRC not specified. Can't generate Q_IMPORT_PLUGIN for qml plugin")
   endif()
 
-  set_property(TARGET ${QT_STATIC_TARGET} PROPERTY INTERFACE_SOURCES "${QT_STATIC_QML_PLUGIN_SRC_FILE}")
+  set_target_properties(${QT_STATIC_TARGET} PROPERTIES INTERFACE_SOURCES "${QT_STATIC_QML_PLUGIN_SRC_FILE}")
 endmacro()
 
 # ┌──────────────────────────────────────────────────────────────────┐
@@ -404,5 +405,5 @@ macro(qt_generate_plugin_import TARGET)
     target_link_libraries(${QT_STATIC_TARGET} PUBLIC "-u _qt_registerPlatformPlugin")
   endif()
 
-  set_property(TARGET ${QT_STATIC_TARGET} PROPERTY INTERFACE_SOURCES "${QT_STATIC_PLUGIN_SRC_FILE}")
+  set_target_properties(${QT_STATIC_TARGET} PROPERTIES INTERFACE_SOURCES "${QT_STATIC_PLUGIN_SRC_FILE}")
 endmacro()
