@@ -273,6 +273,8 @@ macro(qt_generate_qml_plugin_import TARGET)
   else()
     message(WARNING "QT_STATIC_QML_SRC not specified. Can't generate Q_IMPORT_PLUGIN for qml plugin")
   endif()
+
+  set_property(TARGET ${QT_STATIC_TARGET} PROPERTY INTERFACE_SOURCES "${QT_STATIC_QML_PLUGIN_SRC_FILE}")
 endmacro()
 
 # ┌──────────────────────────────────────────────────────────────────┐
@@ -402,4 +404,5 @@ macro(qt_generate_plugin_import TARGET)
     target_link_libraries(${QT_STATIC_TARGET} PUBLIC "-u _qt_registerPlatformPlugin")
   endif()
 
+  set_property(TARGET ${QT_STATIC_TARGET} PROPERTY INTERFACE_SOURCES "${QT_STATIC_PLUGIN_SRC_FILE}")
 endmacro()
