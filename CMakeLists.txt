@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0 FATAL_ERROR)
 
-include(${CMAKE_CURRENT_LIST_DIR}/QtStaticCMake.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/Qt6StaticCMake.cmake)
 
 # Keep location for later use
 set(QT_STATIC_SOURCE_DIR ${QT_STATIC_SOURCE_DIR} CACHE STRING "Source directory of QtStaticCMake.cmake" FORCE)
